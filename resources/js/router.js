@@ -4,6 +4,7 @@ import Public from "./layouts/Public";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Store from "./store";
 
 const routes = [
     {
@@ -27,6 +28,9 @@ const routes = [
             {
                 path: "/dashboard",
                 component: Dashboard,
+                meta: {
+                    requiresAuth: true,
+                },
             },
         ],
     },
@@ -35,6 +39,18 @@ const routes = [
 const router = new VueRouter({
     mode: "history",
     routes,
+});
+
+router.beforeEach((to, from, next) => {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
+        if (Store.getters["auth/getAuthenticated"]) {
+            next();
+            return;
+        }
+        next("/");
+    } else {
+        next();
+    }
 });
 
 export default router;
